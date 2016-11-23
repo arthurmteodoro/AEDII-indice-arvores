@@ -1,0 +1,5 @@
+Claudine Badue received the B.Sc. degree in Computer Science in March 1998 from the Institute of Informatics of the Federal University of Goias (II/UFG), Brazil; the M.Sc. degree in Computer Science in February 2001 and the
+Ph.D. degree in Computer Science in February 2007,  both from Department of Computer Science of the Federal University of Minas Gerais (DCC/UFMG), Brazil. 
+Since September 2009, she is Professor at the Department of Informatics of the Federal University of Espírito Santo (DI/UFES), Brazil.
+
+Her research interests are in the areas of Cognitive Science, Machine Learning, and Autonomous Robotics. She has been involved in research projects financed through Brazilian research  agencies, such as Brazilian National Council for Scientific and Technological Development (Conselho Nacional de Desenvolvimento Cientifico e Tecnologico – CNPq) and State of Espirito Santo Research Foundation (Fundacao de Apoio a Pesquisa do Estado do Espirito Santo – FAPES).  She has also been in the program committee and organizing committee of national and international conferences in Computer Science.

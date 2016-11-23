@@ -1,0 +1,7 @@
+testando leitura  
+arquivo segunda linha sendo lida erraticamente
+naum conhecemos o motivo
+sabemos apenas que a tabela hash eh uma estrutura de dados indicada para indexacao
+A   indexacao eh   uma   tecnica   utilizada   para   que   informacoes   sejam   
+recuperadas  rapidamente.  Aplicada  aos  sistemas  de  GED,  a  indexacao foi  um  dos  fatores que impulsionaram estes sistemas no mercado.  
+Observe que, apesar do hashing ser mais eficiente do que arvores de pesquisa, existe uma desvantagem na sua utilizacao: apos atualizado todo o indice remissivo, eh necessario imprimir suas palavras em ordem alfabetica. Isto eh imediato em arvores de pesquisa, mas, quando se usa hashing, isto é problematico, sendo necessario ordenar a tabela hash que contem o indice remissivo. 
