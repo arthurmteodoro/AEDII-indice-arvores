@@ -12,6 +12,7 @@
 #include "hashEncadeada.h"
 #include "lista.h"
 #include "arvoreBin.h"
+#include "arvoreAVL.h"
 	
 #include "indice.h"
 
@@ -105,9 +106,9 @@ void inserirPalavrasLista(ListaPalavra lista, const char* arqPalvrasChave, char*
 
 /*=======================================================================*/
 /*INSERIR PALAVRAS ARVBIN - INSERE AS PALAVRAS NA LISTA                  */
-/*IN: LISTA, ARQUIVO DE PALAVRAS  OUT: VOID                              */
+/*IN: ARVORE, ARQUIVO DE PALAVRAS  OUT: ARVORE                           */
 /*=======================================================================*/
-void inserirPalavrasArvBin(ArvBin raiz, const char* arqPalvrasChave)
+ArvBin inserirPalavrasArvBin(ArvBin raiz, const char* arqPalvrasChave)
 {
 	FILE* pvlChaves = fopen(arqPalvrasChave, "rt");
 	char pvlLida[33];
@@ -126,6 +127,35 @@ void inserirPalavrasArvBin(ArvBin raiz, const char* arqPalvrasChave)
 	}
 
 	fclose(pvlChaves);
+
+	return raiz;
+}
+
+/*=======================================================================*/
+/*INSERIR PALAVRAS ARVAVL - INSERE AS PALAVRAS NA AVL                    */
+/*IN: ARVORE, ARQUIVO DE PALAVRAS  OUT: ARVORE                           */
+/*=======================================================================*/
+ArvAVL inserirPalavrasArvAVL(ArvAVL raiz, const char* arqPalvrasChave)
+{
+	FILE* pvlChaves = fopen(arqPalvrasChave, "rt");
+	char pvlLida[33];
+	int i;
+
+	while(fgets(pvlLida, 33, pvlChaves) != NULL)
+	{
+		if(strlen(pvlLida) >= 4)
+		{
+			for(i = 0; (pvlLida[i] >= 'A' && pvlLida[i] <= 'z') || (pvlLida[i] >= '0' && pvlLida[i] <= '9'); i++);
+			pvlLida[i] = '\0';
+
+			filtragemPalavras(pvlLida);
+			raiz = insereArvAVL(raiz, pvlLida);
+		}
+	}
+
+	fclose(pvlChaves);
+
+	return raiz;
 }
 
 /*=======================================================================*/
@@ -284,6 +314,46 @@ void criaIndiceArvBin(ArvBin arv, const char* texto)
 }
 
 /*=======================================================================*/
+/*CRIA INDICE LISTA- FUNCAO RESPONSAVEL POR CRIAR O INDICE               */
+/*IN: LISTA, ARQUIVO COM TEXTO   OUT: VOID                               */
+/*=======================================================================*/
+void criaIndiceArvAVL(ArvAVL arv, const char* texto)
+{
+	int Contlinha = 0;
+	int inicioLinha = 0;
+	int fimLinha = 0;
+	char linha[5000];
+	char* palavra;
+
+	FILE* arq = fopen(texto, "rt");
+
+	while(fgets(linha, 5000, arq) != NULL)
+	{
+		Contlinha++;
+
+		inicioLinha = 0;
+		fimLinha = strlen(linha);
+
+		palavra = buscaPalavra(&inicioLinha, &fimLinha, linha);
+		while(palavra != NULL)
+		{
+			inicioLinha = fimLinha;
+			fimLinha = strlen(linha);
+
+			/*Realiza a filtragem da palavra*/
+			filtragemPalavras(palavra);
+
+			insereOcorrenciaArvAVL(arv, palavra, Contlinha);
+
+			free(palavra);
+			palavra = buscaPalavra(&inicioLinha, &fimLinha, linha);
+		}
+	}
+
+	fclose(arq);
+}
+
+/*=======================================================================*/
 /*FILTRAGEM DE PALAVRAS - FUNCAO RESPONSAVEL POR TRANSFORNAR EM LOWER    */
 /*IN: STRING   OUT: VOID                                                 */
 /*=======================================================================*/
@@ -367,6 +437,56 @@ void geraSaidaLista(ListaPalavra lista, const char* arq, char** vetor, int tam)
 		Palavra palavra = buscaListaPalavra(lista, vetor[i]);
 		fprintf(arquivo, "%s - ", retornaPalavraLista(palavra));
 		printaLista(retornaListaPalavra(palavra), arquivo);
+	}
+
+	fclose(arquivo);
+}
+
+/*=======================================================================*/
+/*GERA SAIDA ARVORE - FUNCAO RESPONSAVEL POR GERAR SAIDA                 */
+/*IN: ARVORE, ARQUIVO DE SAIDA   OUT: VOID                               */
+/*=======================================================================*/
+void geraSaidaArvBin(ArvBin raiz, const char* arq)
+{
+	FILE* arquivo = fopen(arq, "wt");
+
+	char linha[5000] = "";
+	caminhaInOrdemArvBin(raiz, linha);
+
+	char* token = strtok(linha, " ");
+	while(token != NULL)
+	{
+
+		ArvBin no = buscaArvBin(raiz, token);
+		fprintf(arquivo, "%s - ", retornaPalavraArvBin(no));
+		printaLista(retornaListaArvBin(no), arquivo);
+
+		token = strtok(NULL, " ");
+	}
+
+	fclose(arquivo);
+}
+
+/*=======================================================================*/
+/*GERA SAIDA ARVORE - FUNCAO RESPONSAVEL POR GERAR SAIDA                 */
+/*IN: ARVORE, ARQUIVO DE SAIDA   OUT: VOID                               */
+/*=======================================================================*/
+void geraSaidaArvAVL(ArvAVL raiz, const char* arq)
+{
+	FILE* arquivo = fopen(arq, "wt");
+
+	char linha[5000] = "";
+	caminhaInOrdemArvAVL(raiz, linha);
+
+	char* token = strtok(linha, " ");
+	while(token != NULL)
+	{
+
+		ArvAVL no = buscaArvAVL(raiz, token);
+		fprintf(arquivo, "%s - ", retornaPalavraArvAVL(no));
+		printaLista(retornaListaArvAVL(no), arquivo);
+
+		token = strtok(NULL, " ");
 	}
 
 	fclose(arquivo);

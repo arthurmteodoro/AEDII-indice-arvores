@@ -12,68 +12,138 @@
 #include <string.h>
 #include <time.h>
 #include "listadup.h"
-#include "arvoreBin.h"
+#include "arvoreAVL.h"
 
 /*=======================================================================*/
 /*                         ESTRUTURA CRIADA                              */
 /*=======================================================================*/
-struct no
+struct noAVL
 {
   char plv[33];
   Lista ocorrencias;
-  struct no *esq;
-  struct no *dir;
+  int altura;
+  struct noAVL *esq;
+  struct noAVL *dir;
 };
 
 /*=======================================================================*/
 /*CRIA ARVORE BINARIA VAZIA - FUNCAO QUE CRIA ARVORE VAZIA               */
 /*IN: VOID   OUT: PONTEIRO PARA ARVORE VAZIA                             */
 /*=======================================================================*/
-ArvBin criaArvBinVazia(void)
+ArvAVL criaArvAVLVazia(void)
 {
   return NULL;
 }
 
-/*=======================================================================*/
-/*INSERE ARVORE BINARIA - FUNCAO QUE INSERE ELEMENTO NA ARVORE           */
-/*IN: RAIZ, PALAVRA   OUT: PONTEIRO PARA ARVORE                          */
-/*=======================================================================*/
-ArvBin insereArvBin(ArvBin arv, char* palavra)
+int maior(int a, int b)
 {
-  
-  if(arv == NULL)
+
+  if(a > b)
+    return a;
+  return b;
+}
+
+int altura(ArvAVL raiz)
+{
+
+  if(raiz == NULL)
+    return 0;
+  return raiz->altura;
+}
+
+ArvAVL rotacaoDireitaAVL(ArvAVL raiz)
+{
+
+  ArvAVL noh1 = raiz->esq;
+  ArvAVL noh2 = noh1->dir;
+
+  noh1->dir = raiz;
+  raiz->esq = noh2;
+
+  raiz->altura = maior(altura(raiz->esq), altura(raiz->dir))+1;
+  noh1->altura = maior(altura(noh1->esq), altura(noh1->dir))+1;
+
+  return noh1;
+}
+ 
+ArvAVL rotacaoEsquerdaAVL(ArvAVL raiz)
+{
+  ArvAVL noh1 = raiz->dir;
+  ArvAVL noh2 = noh1->esq;
+
+  noh1->esq = raiz;
+  raiz->dir = noh2;
+
+  raiz->altura = maior(altura(raiz->esq), altura(raiz->dir))+1;
+  noh1->altura = maior(altura(noh1->esq), altura(noh1->dir))+1;
+
+  return noh1;
+}
+
+int pegaBalanceamento(ArvAVL raiz)
+{
+  if(raiz == NULL)
+    return 0;
+  return altura(raiz->esq) - altura(raiz->dir);
+}
+
+ArvAVL insereArvAVL(ArvAVL raiz, char* palavra)
+{
+
+  if(raiz == NULL)
   {
-    arv = (ArvBin) malloc(sizeof(struct no));
+    ArvAVL arv = (ArvAVL) malloc(sizeof(struct noAVL));
     strcpy(arv->plv, palavra);
     arv->ocorrencias = criaLista();
     arv->esq = arv->dir = NULL;
+    arv->altura = 1;
     return arv;
   }
-  else if(strcmp(palavra, arv->plv) < 0)
-  {
-    arv->esq = insereArvBin(arv->esq, palavra);
-  }
+
+  if(strcmp(palavra, raiz->plv) < 0)
+    raiz->esq  = insereArvAVL(raiz->esq, palavra);
   else
+    raiz->dir = insereArvAVL(raiz->dir, palavra);
+
+  raiz->altura = 1 + maior(altura(raiz->esq), altura(raiz->dir));
+
+  int balance = pegaBalanceamento(raiz);
+
+  /*LL*/
+  if (balance > 1 && strcmp(palavra, raiz->esq->plv) < 0)
+    return rotacaoDireitaAVL(raiz);
+
+  /*RR*/
+  if (balance < -1 && strcmp(palavra, raiz->dir->plv) > 0)
+    return rotacaoEsquerdaAVL(raiz);
+
+  /*LR*/
+  if (balance > 1 && strcmp(palavra, raiz->esq->plv) > 0)
   {
-    arv->dir = insereArvBin(arv->dir, palavra);
+    raiz->esq =  rotacaoEsquerdaAVL(raiz->esq);
+    return rotacaoDireitaAVL(raiz);
   }
-  return arv;
+
+  /*RL*/
+  if (balance < -1 && strcmp(palavra, raiz->dir->plv) < 0)
+  {
+    raiz->dir = rotacaoDireitaAVL(raiz->dir);
+    return rotacaoEsquerdaAVL(raiz);
+  }
+
+  return raiz;
 }
 
-/*=======================================================================*/
-/*BUSCA ARVORE BINARIA - FUNCAO QUE BUSCA UM ELEMENTO NA ARVORE          */
-/*IN: RAIZ, PALAVRA   OUT: PONTEIRO PARA ARVORE                          */
-/*=======================================================================*/
-ArvBin buscaArvBin(ArvBin raiz, char* palavra)
+ArvAVL buscaArvAVL(ArvAVL raiz, char* palavra)
 {
   if(raiz == NULL)
     return NULL;
 
   if(strcmp(raiz->plv, palavra) > 0)
-    return buscaArvBin(raiz->esq, palavra);
+    return buscaArvAVL(raiz->esq, palavra);
 
   if(strcmp(raiz->plv, palavra) < 0)
-    return buscaArvBin(raiz->dir, palavra);
+    return buscaArvAVL(raiz->dir, palavra);
 
   return raiz;
 }
@@ -82,13 +152,13 @@ ArvBin buscaArvBin(ArvBin raiz, char* palavra)
 /*DESTROI ARVORE BINARIA - FUNCAO QUE DESTROI A ARVORE                   */
 /*IN: RAIZ   OUT: PONTEIRO NULO                                          */
 /*=======================================================================*/
-void destroiArvBin(ArvBin raiz)
+void destroiArvAVL(ArvAVL raiz)
 {
 
   if(raiz != NULL)
   {
-    destroiArvBin(raiz->esq);
-    destroiArvBin(raiz->dir);
+    destroiArvAVL(raiz->esq);
+    destroiArvAVL(raiz->dir);
     destroiLista(raiz->ocorrencias);
     free(raiz);
     raiz = NULL;
@@ -99,10 +169,10 @@ void destroiArvBin(ArvBin raiz)
 /*INSERE OCORRENCIA ARVORE BINARIA - FUNCAO INSERE PAGINA NA ARVORE      */
 /*IN: RAIZ   OUT: VOID                                                   */
 /*=======================================================================*/
-void insereOcorrenciaArvBin(ArvBin raiz, char* palavra, int linha)
+void insereOcorrenciaArvAVL(ArvAVL raiz, char* palavra, int linha)
 {
 
-  ArvBin inserir = buscaArvBin(raiz, palavra);
+  ArvAVL inserir = buscaArvAVL(raiz, palavra);
   if(inserir != NULL)
   {
     if(!existeLista(inserir->ocorrencias, linha))
@@ -115,7 +185,7 @@ void insereOcorrenciaArvBin(ArvBin raiz, char* palavra, int linha)
 /*INSERE OCORRENCIA ARVORE BINARIA - FUNCAO INSERE PAGINA NA ARVORE      */
 /*IN: RAIZ   OUT: PALAVRA                                                */
 /*=======================================================================*/
-char* retornaPalavraArvBin(ArvBin raiz)
+char* retornaPalavraArvAVL(ArvAVL raiz)
 {
   return raiz->plv;
 }
@@ -124,7 +194,7 @@ char* retornaPalavraArvBin(ArvBin raiz)
 /*INSERE OCORRENCIA ARVORE BINARIA - FUNCAO INSERE PAGINA NA ARVORE      */
 /*IN: RAIZ   OUT: LISTA DO NO                                            */
 /*=======================================================================*/
-Lista retornaListaArvBin(ArvBin raiz)
+Lista retornaListaArvAVL(ArvAVL raiz)
 {
   return raiz->ocorrencias;
 }
@@ -134,15 +204,15 @@ Lista retornaListaArvBin(ArvBin raiz)
 /*INSERE OCORRENCIA ARVORE BINARIA - FUNCAO INSERE PAGINA NA ARVORE      */
 /*IN: RAIZ, VETOR DESTINO   OUT: VOID                                    */
 /*=======================================================================*/
-void caminhaInOrdemArvBin(ArvBin raiz, char* vetor)
+void caminhaInOrdemArvAVL(ArvAVL raiz, char* vetor)
 {
   if(raiz != NULL)
   {
     char string[500];
 
-    caminhaInOrdemArvBin(raiz->esq, vetor);
+    caminhaInOrdemArvAVL(raiz->esq, vetor);
     sprintf(string, "%s ", raiz->plv);
     strcat(vetor, string);
-    caminhaInOrdemArvBin(raiz->dir, vetor);
+    caminhaInOrdemArvAVL(raiz->dir, vetor);
   }
 }

@@ -9,9 +9,10 @@
 #include <ctype.h>
 #include <time.h>
 
-//#include "lista.h"
-//#include "hashEncadeada.h"
+#include "lista.h"
+#include "hashEncadeada.h"
 #include "arvoreBin.h"
+#include "arvoreAVL.h"
 
 #include "indice.h"
 
@@ -37,35 +38,73 @@ int main(int argc, char const *argv[])
 
 	/*Le a quantidade de palavras, cria a hash e o vetor*/
 	float inicio = (double)clock()/CLOCKS_PER_SEC;
-	//int quantPalavras = contaPalavrasChave(argv[1]);
-	//int tamHash = quantPalavras;
+	int quantPalavras = contaPalavrasChave(argv[1]);
+	int tamHash = quantPalavras;
+	Hash h;
+	ListaPalavra lista;
+	char** vetor;
+	ArvBin raizBin;
+	ArvAVL raizAVL;
 
-	//tamHash = quantPalavras*0.65;
+	tamHash = quantPalavras*0.65;
 
-	//char** vetor = criaVetor(quantPalavras);
-	//Hash h = criaHash(tamHash);
-	ArvBin raiz = criaArvBinVazia();
+	if(O == 1 || O == 2)
+	{
+		vetor = criaVetor(quantPalavras);
+		if(O == 1)
+			h = criaHash(tamHash);
 
-	/*Criação do indice*/
-	//inserirPalavrasHash(h, argv[1], vetor);
-	inserirPalavrasArvBin(&raiz, argv[1]);
+		if(O == 2)
+			lista = criaListaPalavra(quantPalavras);
+	}
 
-	char linha[5000] = "";
+	if(O == 3)
+		raizBin = criaArvBinVazia();
+	if(O == 4)
+		raizAVL = criaArvAVLVazia();
 
-	caminhaInOrdemArvBin(raiz, linha);
+	/*Inserção das palavras na ED*/
+	if(O == 1)
+		inserirPalavrasHash(h, argv[1], vetor);
+	if(O == 2)
+		inserirPalavrasLista(lista, argv[1], vetor);
+	if(O == 3)
+		raizBin = inserirPalavrasArvBin(raizBin, argv[1]);
+	if(O == 4)
+		raizAVL = inserirPalavrasArvAVL(raizAVL, argv[1]);
 
-	printf("%s\n", linha);
+	/*Criação do índice*/
+	if(O == 1) 
+		criaIndiceHash(h, argv[2]);
+	if(O == 2)
+		criaIndiceLista(lista, argv[2]);
+	if(O == 3)
+		criaIndiceArvBin(raizBin, argv[2]);
+	if(O == 4)
+		criaIndiceArvAVL(raizAVL, argv[2]);
 
-	//criaIndiceHash(h, argv[2]);
-	criaIndiceArvBin(raiz, argv[2]);
-
-	//geraSaidaHash(h, argv[3], vetor, quantPalavras);
+	/*geração da saída*/
+	if(O == 1)
+		geraSaidaHash(h, argv[3], vetor, quantPalavras);
+	if(O == 2)
+		geraSaidaLista(lista, argv[3], vetor, quantPalavras);
+	if(O == 3)
+		geraSaidaArvBin(raizBin, argv[3]);
+	if(O == 4)
+		geraSaidaArvAVL(raizAVL, argv[3]); 
 	/*Fim da criação do indice*/
 
-	//destroiVetor(vetor, quantPalavras);
+	if(O == 1 || O == 2)
+		destroiVetor(vetor, quantPalavras);
 
-	//destroiHash(h);
-	destroiArvBin(raiz);
+	if(O == 1)
+		destroiHash(h);
+	if(O == 2)
+		destroiListaPalavra(lista);
+	if(O == 3)
+		destroiArvBin(raizBin);
+	if(O == 4)
+		destroiArvAVL(raizAVL);
 
 	float fim = (double)clock()/CLOCKS_PER_SEC;
 	float tempo = fim - inicio;
