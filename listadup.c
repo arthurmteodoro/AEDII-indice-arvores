@@ -199,3 +199,13 @@ int existeLista(Lista l, int valor)
 	}
 	return 0;
 }
+
+int valorPosLista(Lista l, int pos)
+{
+	Nodo aux = l->inicio;
+	for(aux = l->inicio; pos != 0; aux = aux->prox)
+	{
+		pos--;
+	}
+	return aux->valor;
+}

@@ -8,7 +8,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
 #include "hashEncadeada.h"
 #include "lista.h"
 #include "arvoreBin.h"
